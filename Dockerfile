@@ -16,10 +16,7 @@ RUN sed -i '/find_package(std_msgs REQUIRED)/a add_executable(healthcheck_node s
 # Build the package
 RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
     colcon build --symlink-install
-
-# Source the workspace
-RUN echo "source /ros2_ws/install/setup.bash" >> ~/.bashrc
-
+    
 # Add source command to /ros_entrypoint.sh
 RUN sed -i 's|^exec "\$@"|source "/ros2_ws/install/setup.bash" --\nexec "$@"|' /ros_entrypoint.sh
 
