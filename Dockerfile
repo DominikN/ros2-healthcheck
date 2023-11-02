@@ -11,12 +11,19 @@ RUN mkdir src/ && cd src/ && \
 COPY healthcheck.cpp /ros2_ws/src/healthcheck_pkg/src
 
 # Modify the CMakeLists.txt to include the executable
-RUN sed -i '/find_package(std_msgs REQUIRED)/a add_executable(healthcheck_node src/healthcheck.cpp)\nament_target_dependencies(healthcheck_node rclcpp std_msgs)\ninstall(TARGETS healthcheck_node DESTINATION lib/${PROJECT_NAME})' /ros2_ws/src/healthcheck_pkg/CMakeLists.txt
+# Search for the line containing find_package(std_msgs REQUIRED) 
+# in the CMakeLists.txt file and appends the specified CMake commands 
+# right after that line to define the build instructions for the healthcheck_node executable
+RUN sed -i '/find_package(std_msgs REQUIRED)/a \
+            add_executable(healthcheck_node src/healthcheck.cpp)\n \
+            ament_target_dependencies(healthcheck_node rclcpp std_msgs)\n \
+            install(TARGETS healthcheck_node DESTINATION lib/${PROJECT_NAME})' \
+            /ros2_ws/src/healthcheck_pkg/CMakeLists.txt
 
 # Build the package
 RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
     colcon build --symlink-install
-    
+
 # Add source command to /ros_entrypoint.sh
 RUN sed -i 's|^exec "\$@"|source "/ros2_ws/install/setup.bash" --\nexec "$@"|' /ros_entrypoint.sh
 
